@@ -523,8 +523,10 @@
                 if (elapsed < totalDuration || particles.length > 0 || rockets.length > 0) {
                     animationId = requestAnimationFrame(animate);
                 } else {
-                    // Fade out canvas
+                    // Fade out canvas and restore original background
                     canvas.classList.remove('visible');
+                    document.body.classList.remove('dark-bg');
+                    document.getElementById('hearts-bg').classList.remove('fade-out');
                 }
             }
 
