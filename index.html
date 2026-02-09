@@ -22,6 +22,11 @@
             background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 30%, #f48fb1 60%, #f06292 100%);
             overflow: hidden;
             font-family: 'Playfair Display', serif;
+            transition: background 1.5s ease;
+        }
+
+        body.dark-bg {
+            background: linear-gradient(135deg, #1a0a10 0%, #0d0d0d 50%, #1a0a10 100%);
         }
 
         /* Floating hearts background */
@@ -129,6 +134,14 @@
             transition: none;
         }
 
+        .hearts-bg {
+            transition: opacity 1.5s ease;
+        }
+
+        .hearts-bg.fade-out {
+            opacity: 0;
+        }
+
         /* Fireworks canvas */
         #fireworks-canvas {
             position: fixed;
@@ -138,7 +151,12 @@
             height: 100%;
             z-index: 20;
             pointer-events: none;
-            display: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        #fireworks-canvas.visible {
+            opacity: 1;
         }
 
         /* Invitation card */
@@ -255,7 +273,7 @@
     <div id="invitation-card">
         <div class="card">
             <span class="card-heart">❤️</span>
-            <h2>You're Invited</h2>
+            <h2>My Love</h2>
             <div class="divider"></div>
             <p class="detail date">14 February 2026</p>
             <p class="detail venue">Cafe Giardino</p>
@@ -339,13 +357,19 @@
             questionScreen.classList.add('hidden');
             noBtn.style.display = 'none';
 
-            // Start fireworks
-            startFireworks();
+            // Smoothly darken the background and fade out hearts
+            document.body.classList.add('dark-bg');
+            document.getElementById('hearts-bg').classList.add('fade-out');
+
+            // Start fireworks after a brief delay to let the background darken first
+            setTimeout(function() {
+                startFireworks();
+            }, 600);
 
             // Show invitation card after a delay
             setTimeout(function() {
                 document.getElementById('invitation-card').classList.add('visible');
-            }, 1500);
+            }, 2100);
         });
 
         // =============================================
@@ -353,7 +377,6 @@
         // =============================================
         function startFireworks() {
             const canvas = document.getElementById('fireworks-canvas');
-            canvas.style.display = 'block';
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -501,17 +524,16 @@
                     animationId = requestAnimationFrame(animate);
                 } else {
                     // Fade out canvas
-                    canvas.style.transition = 'opacity 1s ease';
-                    canvas.style.opacity = '0';
-                    setTimeout(function() {
-                        canvas.style.display = 'none';
-                    }, 1000);
+                    canvas.classList.remove('visible');
                 }
             }
 
-            // Clear canvas to dark for fireworks
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Fade in the canvas smoothly
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Slight delay to ensure the canvas is ready, then fade it in
+            requestAnimationFrame(function() {
+                canvas.classList.add('visible');
+            });
             animate();
 
             // Handle resize
