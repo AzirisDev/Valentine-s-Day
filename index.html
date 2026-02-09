@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Will you be my Valentine?</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,6 +109,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 20px rgba(233, 30, 99, 0.4);
             transform-origin: center center;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #yes-btn:hover {
@@ -128,6 +129,7 @@
             transition: box-shadow 0.2s ease;
             position: fixed;
             z-index: 11;
+            -webkit-tap-highlight-color: transparent;
         }
 
         #no-btn.dodging {
@@ -250,6 +252,88 @@
             color: #e91e63;
             margin-top: 25px;
         }
+
+        /* ===== Mobile responsiveness ===== */
+        @media (max-width: 600px) {
+            #question-screen {
+                padding: 0 20px;
+            }
+
+            #question-screen h1 {
+                font-size: clamp(1.8rem, 8vw, 3rem);
+                margin-bottom: 35px;
+            }
+
+            .buttons-container {
+                gap: 20px;
+            }
+
+            #yes-btn, #no-btn {
+                padding: 14px 36px;
+                font-size: 1.1rem;
+            }
+
+            .card {
+                padding: 30px 25px;
+                max-width: 92vw;
+                border-radius: 16px;
+            }
+
+            .card-heart {
+                font-size: 2.4rem;
+                margin-bottom: 10px;
+            }
+
+            .card h2 {
+                font-size: clamp(1.5rem, 7vw, 2.4rem);
+                margin-bottom: 20px;
+            }
+
+            .card .detail {
+                font-size: clamp(0.95rem, 4vw, 1.3rem);
+                margin: 10px 0;
+            }
+
+            .card .detail.date {
+                font-size: clamp(1.1rem, 5vw, 1.5rem);
+            }
+
+            .card .detail.venue {
+                font-size: clamp(1rem, 4.5vw, 1.4rem);
+            }
+
+            .card .divider {
+                margin: 15px auto;
+            }
+
+            .card .footer-text {
+                font-size: 1rem;
+                margin-top: 18px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            #question-screen h1 {
+                font-size: 1.6rem;
+                margin-bottom: 28px;
+            }
+
+            #yes-btn, #no-btn {
+                padding: 12px 28px;
+                font-size: 1rem;
+            }
+
+            .card {
+                padding: 24px 18px;
+            }
+        }
+
+        /* Fix for mobile browsers address bar (use dvh if supported) */
+        @supports (min-height: 100dvh) {
+            body {
+                min-height: 100dvh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -309,8 +393,9 @@
         const yesBtn = document.getElementById('yes-btn');
         const questionScreen = document.getElementById('question-screen');
         let yesScale = 1.0;
-        const maxScale = 2.0;
-        const scaleStep = 0.12;
+        const isMobile = window.innerWidth <= 600;
+        const maxScale = isMobile ? 1.5 : 2.0;
+        const scaleStep = isMobile ? 0.1 : 0.12;
 
         // Place No button initially in its natural position
         function initNoButton() {
@@ -322,13 +407,20 @@
         // Small delay so layout settles
         setTimeout(initNoButton, 100);
 
+        // Re-init on orientation change / resize
+        window.addEventListener('orientationchange', function() {
+            setTimeout(initNoButton, 200);
+        });
+
         function dodgeNoButton() {
             noBtn.classList.add('dodging');
-            const padding = 20;
+            const padding = 10;
             const btnWidth = noBtn.offsetWidth;
             const btnHeight = noBtn.offsetHeight;
-            const maxX = window.innerWidth - btnWidth - padding;
-            const maxY = window.innerHeight - btnHeight - padding;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const maxX = Math.max(padding, vw - btnWidth - padding);
+            const maxY = Math.max(padding, vh - btnHeight - padding);
             const newX = Math.random() * (maxX - padding) + padding;
             const newY = Math.random() * (maxY - padding) + padding;
             noBtn.style.left = newX + 'px';
